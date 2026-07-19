@@ -1,0 +1,21 @@
+# Core dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+pymupdf>=1.23.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# PDF and DOCX parsing
+pillow>=10.1.0
+pytesseract>=0.3.10
+python-docx>=1.1.0
+reportlab>=4.0.0
+openpyxl>=3.1.0
+
+# OCR dependencies (required for scanned PDFs)
+# Note: Tesseract OCR engine must be installed separately
+# Windows: https://github.com/UB-Mannheim/tesseract/wiki
+# Mac: brew install tesseract
+# Linux: sudo apt install tesseract-ocr tesseract-ocr-eng tesseract-ocr-vie
