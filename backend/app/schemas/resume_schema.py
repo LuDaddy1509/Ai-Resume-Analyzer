@@ -22,3 +22,19 @@ class Resume(BaseModel):
     skills: List[str] = []
     experiences: List[Experience] = []
     analysis: Optional[ResumeAnalysis] = None
+
+class ResumeResponse(BaseModel):
+    """Wrapper response that includes validation information"""
+    success: bool
+    is_resume: bool
+    resume_confidence: float
+    message: str
+    data: Optional[Resume] = None
+    history_id: Optional[int] = None
+
+class ValidationErrorResponse(BaseModel):
+    """Response for validation failures"""
+    success: bool
+    is_resume: bool
+    error_code: str
+    message: str

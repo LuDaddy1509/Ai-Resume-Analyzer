@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"from app.services.resume_validation_service import ResumeValidator; from app.routers.resume import router; print\\('✓ Imports successful'\\)\")"
+    ]
+  }
+}

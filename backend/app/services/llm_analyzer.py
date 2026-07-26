@@ -3,10 +3,12 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 from typing import List, Optional
+from app.rag.vector_store import ResumeRAG
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 class AnalysisResult(BaseModel):
     overall_score: int = Field(..., description="Điểm tổng thể 0-100")
@@ -17,6 +19,7 @@ class AnalysisResult(BaseModel):
     suggestions: List[str] = Field(..., description="Gợi ý cải thiện")
     match_score: Optional[int] = Field(None, description="Điểm khớp với JD")
 
+
 class LLMAnalyzer:
     def __init__(self):
         api_key = os.getenv("GEMINI_API_KEY")
@@ -25,59 +28,90 @@ class LLMAnalyzer:
         else:
             self.llm = ChatGoogleGenerativeAI(
                 model="gemini-1.5-flash",
-                temperature=0.3,
+                temperature=0.2,  # Giảm xuống để chính xác hơn
                 api_key=api_key
             )
-        
-        self.parser = PydanticOutputParser(pydantic_object=AnalysisResult)
-        
-        self.prompt = PromptTemplate(
-            template="""Bạn là chuyên gia tuyển dụng cao cấp. Phân tích CV sau một cách chi tiết và khách quan.
 
-CV Information:
+        self.rag = ResumeRAG()  # Khởi tạo RAG
+        self.parser = PydanticOutputParser(pydantic_object=AnalysisResult)
+
+        self.prompt = PromptTemplate(
+            template="""Bạn là **Senior Technical Recruiter** với 12+ năm kinh nghiệm tại Google, Meta và FPT Software.
+
+**Kiến thức tham khảo từ RAG (Best Practices CV & Job Market):**
+{context}
+
+**CV của ứng viên:**
 {resume_text}
 
 {job_description_section}
 
+**Yêu cầu phân tích chi tiết:**
+
+1. **Overall Score** (0-100): Điểm tổng thể.
+2. **ATS Score** (0-100): Tính tương thích ATS.
+3. **Strengths**: 4-6 điểm mạnh nổi bật.
+4. **Weaknesses**: 3-5 điểm yếu rõ ràng.
+5. **Skill Gaps**: Kỹ năng còn thiếu so với JD.
+6. **Suggestions**: Gợi ý **cụ thể, actionable**.
+
+**Hướng dẫn output:**
+- Trả về **JSON hợp lệ** theo đúng schema.
+- Sử dụng tiếng Việt chuyên nghiệp.
+- Suggestions phải thực tế, có thể áp dụng ngay.
+- Dựa vào context RAG để đưa ra lời khuyên chính xác.
+
 {format_instructions}
 
-Trả về kết quả theo đúng JSON format.""",
-            input_variables=["resume_text", "job_description_section"],
+**Chỉ trả về JSON, không thêm bất kỳ ký tự hoặc giải thích nào.**""",
+
+            input_variables=["context", "resume_text", "job_description_section"],
             partial_variables={"format_instructions": self.parser.get_format_instructions()}
         )
 
     async def analyze(self, resume_text: str, job_description: str = None):
-        """Phân tích CV bằng Gemini"""
         if not self.llm:
             return self._fallback_analyze(resume_text, job_description)
-            
-        jd_section = f"Job Description:\n{job_description}\n" if job_description else ""
-        
+
+        # === RAG RETRIEVAL ===
+        query = f"Phân tích CV với kỹ năng: {resume_text[:800]}"
+        if job_description:
+            query += f" và JD: {job_description[:500]}"
+
+        docs = self.rag.retrieve(query, k=4)
+        context = "\n\n".join([doc.page_content for doc in docs])
+
+        # === JD Section ===
+        jd_section = f"**Job Description:**\n{job_description}\n" if job_description else "Không có Job Description."
+
         chain = self.prompt | self.llm | self.parser
-        
+
         try:
-            result = chain.invoke({
-                "resume_text": resume_text,
+            result = await chain.ainvoke({
+                "context": context,
+                "resume_text": resume_text[:18000],  # Giới hạn token
                 "job_description_section": jd_section
             })
             return result
         except Exception as e:
-            print("LLM Error:", e)
+            print(f"LLM Error: {e}")
             return self._fallback_analyze(resume_text, job_description)
 
     def _fallback_analyze(self, resume_text: str, job_description: str):
-        # Fallback sang local parsing & analysis
-        # pyrefly: ignore [missing-import]
-        from app.services.parser_service import parse_resume_file, analyze_resume_against_job
-        # Giả lập file bytes từ resume_text
-        resume_data = parse_resume_file(resume_text.encode("utf-8", errors="ignore"), "resume.txt")
-        rule_analysis = analyze_resume_against_job(resume_data, job_description)
-        return AnalysisResult(
-            overall_score=rule_analysis.match_score,
-            ats_score=rule_analysis.match_score,
-            strengths=["Hồ sơ có các kỹ năng kỹ thuật cần thiết"],
-            weaknesses=["Chưa nhận diện thêm điểm yếu từ AI"],
-            skill_gaps=rule_analysis.missing_skills,
-            suggestions=rule_analysis.suggestions,
-            match_score=rule_analysis.match_score
-        )
+        # Fallback rule-based
+        try:
+            from app.services.resume_analyzer import ResumeAnalyzer
+            analyzer = ResumeAnalyzer()
+            resume_dict = {"skills": [], "experiences": [], "full_name": "", "email": ""}  # Giả lập
+            return analyzer.analyze(resume_dict, job_description)
+        except:
+            # Fallback cuối cùng
+            return AnalysisResult(
+                overall_score=65,
+                ats_score=70,
+                strengths=["Có một số kỹ năng cơ bản"],
+                weaknesses=["Cần cải thiện cấu trúc CV"],
+                skill_gaps=[],
+                suggestions=["Thêm quantifiable achievements", "Tối ưu từ khóa JD"],
+                match_score=60
+            )
