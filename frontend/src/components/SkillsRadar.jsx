@@ -1,37 +1,40 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
-export default function SkillsRadar({ matchedSkills = [], missingSkills = [] }) {
+const SkillsRadar = React.memo(function SkillsRadar({ matchedSkills = [], missingSkills = [] }) {
   const hasData = matchedSkills.length > 0 || missingSkills.length > 0;
 
   if (!hasData) {
     return (
-      <div className="card shadow mb-4">
-        <div className="card-header bg-secondary text-white fw-bold">
-          🛠️ Phân tích kỹ năng yêu cầu
+      <div className="panel">
+        <div className="panel__header panel__header--info">
+          <AlertCircle size={18} />
+          <span>Skill Analysis</span>
         </div>
-        <div className="card-body text-center py-4">
-          <p className="text-muted mb-0">Không có dữ liệu kỹ năng yêu cầu. Hãy dán mô tả công việc (JD) để phân tích kỹ năng.</p>
+        <div className="panel__body" style={{ textAlign: 'center', padding: 'var(--space-10)' }}>
+          <p className="text-muted">No required skills data available. Provide a job description to analyze skill matching.</p>
         </div>
       </div>
     );
   }
 
   const data = [
-    { name: 'Kỹ năng tương thích', value: matchedSkills.length },
-    { name: 'Kỹ năng còn thiếu', value: missingSkills.length },
+    { name: 'Matched Skills', value: matchedSkills.length },
+    { name: 'Missing Skills', value: missingSkills.length },
   ];
 
-  const COLORS = ['#28a745', '#dc3545'];
+  const COLORS = ['var(--color-success)', 'var(--color-error)'];
 
   return (
-    <div className="card shadow mb-4">
-      <div className="card-header bg-secondary text-white fw-bold">
-        🛠️ Phân tích kỹ năng yêu cầu
+    <div className="panel">
+      <div className="panel__header panel__header--info">
+        <AlertCircle size={18} />
+        <span>Skill Analysis</span>
       </div>
-      <div className="card-body">
-        <div className="row align-items-center">
-          <div className="col-md-6" style={{ height: '220px' }}>
+      <div className="panel__body">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6)', alignItems: 'center' }}>
+          <div style={{ height: 220 }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -44,7 +47,7 @@ export default function SkillsRadar({ matchedSkills = [], missingSkills = [] }) 
                   dataKey="value"
                 >
                   {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index]} />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -52,27 +55,29 @@ export default function SkillsRadar({ matchedSkills = [], missingSkills = [] }) 
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="col-md-6">
+          <div>
             {matchedSkills.length > 0 && (
-              <div className="mb-3">
-                <span className="badge bg-success mb-2 d-inline-block">✅ Đã có ({matchedSkills.length})</span>
-                <div>
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle size={16} color="var(--color-success)" />
+                  <span className="font-semibold text-sm">Matched ({matchedSkills.length})</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
                   {matchedSkills.map((skill) => (
-                    <span key={skill} className="badge bg-light text-dark border me-1 mb-1 small">
-                      {skill}
-                    </span>
+                    <span key={skill} className="tag tag-primary">{skill}</span>
                   ))}
                 </div>
               </div>
             )}
             {missingSkills.length > 0 && (
               <div>
-                <span className="badge bg-danger mb-2 d-inline-block">❌ Thiếu ({missingSkills.length})</span>
-                <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <XCircle size={16} color="var(--color-error)" />
+                  <span className="font-semibold text-sm">Missing ({missingSkills.length})</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
                   {missingSkills.map((skill) => (
-                    <span key={skill} className="badge bg-light text-dark border me-1 mb-1 small">
-                      {skill}
-                    </span>
+                    <span key={skill} className="tag">{skill}</span>
                   ))}
                 </div>
               </div>
@@ -82,4 +87,6 @@ export default function SkillsRadar({ matchedSkills = [], missingSkills = [] }) 
       </div>
     </div>
   );
-}
+});
+
+export default SkillsRadar;

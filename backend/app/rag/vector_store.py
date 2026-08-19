@@ -1,9 +1,8 @@
 ﻿from langchain_community.vectorstores import Chroma
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.retrievers import BM25Retriever
-from langchain.retrievers import EnsembleRetriever
-from langchain.schema import Document
+from langchain_core.documents import Document
 import os
 import glob
 import logging
@@ -17,13 +16,23 @@ class ResumeRAG:
     RESERVED_TOKENS = 500
     
     def __init__(self):
-        self.embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/embedding-001",
-            google_api_key=os.getenv("GEMINI_API_KEY")
-        )
+        self.embeddings = None
+        self._semantic_available = False
+        api_key = os.getenv("GEMINI_API_KEY", "").strip()
+        if api_key and api_key != "your_key_here" and "placeholder" not in api_key.lower():
+            try:
+                self.embeddings = GoogleGenerativeAIEmbeddings(
+                    model="models/embedding-001",
+                    google_api_key=api_key
+                )
+                self._semantic_available = True
+            except Exception as e:
+                logger.warning("Embeddings init failed, using BM25 only: %s", e)
+        else:
+            logger.warning("GEMINI_API_KEY missing/placeholder, using BM25-only retrieval")
+
         self.vector_store = None
         self.bm25_retriever = None
-        self.ensemble_retriever = None
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=500,
             chunk_overlap=100,
@@ -95,21 +104,16 @@ class ResumeRAG:
         
         logger.info("Loaded %d documents, split into %d chunks", len(documents), len(split_docs))
         
-        self.vector_store = Chroma.from_documents(
-            documents=split_docs,
-            embedding=self.embeddings,
-            persist_directory=self._persist_dir
-        )
+        if self._semantic_available:
+            self.vector_store = Chroma.from_documents(
+                documents=split_docs,
+                embedding=self.embeddings,
+                persist_directory=self._persist_dir
+            )
         
         # Create BM25 retriever for keyword search
         self.bm25_retriever = BM25Retriever.from_documents(split_docs)
         self.bm25_retriever.k = 5
-        
-        # Create ensemble retriever (hybrid: 50% semantic, 50% keyword)
-        self.ensemble_retriever = EnsembleRetriever(
-            retrievers=[self.vector_store.as_retriever(search_kwargs={"k": 5}), self.bm25_retriever],
-            weights=[0.5, 0.5]
-        )
         
         self._initialized = True
         logger.info("Knowledge base initialized successfully")
@@ -126,31 +130,60 @@ class ResumeRAG:
         split_docs = self.text_splitter.create_documents(documents)
         self._all_documents = split_docs
         
-        self.vector_store = Chroma.from_documents(
-            documents=split_docs,
-            embedding=self.embeddings,
-            persist_directory=self._persist_dir
-        )
+        if self._semantic_available:
+            self.vector_store = Chroma.from_documents(
+                documents=split_docs,
+                embedding=self.embeddings,
+                persist_directory=self._persist_dir
+            )
         
         self.bm25_retriever = BM25Retriever.from_documents(split_docs)
         self.bm25_retriever.k = 5
         
-        self.ensemble_retriever = EnsembleRetriever(
-            retrievers=[self.vector_store.as_retriever(search_kwargs={"k": 5}), self.bm25_retriever],
-            weights=[0.5, 0.5]
-        )
-        
         self._initialized = True
         return self.vector_store
+
+    def _hybrid_retrieve(self, query: str, k: int) -> list:
+        """Merge results from semantic search and BM25, deduplicated by content."""
+        seen = set()
+        merged = []
+
+        if self._semantic_available and self.vector_store is not None:
+            try:
+                semantic_docs = self.vector_store.similarity_search(query, k=k)
+            except Exception as e:
+                logger.warning("Semantic search failed: %s", e)
+                semantic_docs = []
+        else:
+            semantic_docs = []
+
+        try:
+            bm25_docs = self.bm25_retriever.get_relevant_documents(query)[:k]
+        except Exception as e:
+            logger.warning("BM25 search failed: %s", e)
+            bm25_docs = []
+
+        for doc in semantic_docs + bm25_docs:
+            key = doc.page_content[:256]
+            if key not in seen:
+                seen.add(key)
+                merged.append(doc)
+
+        return merged[: max(k, 5)]
 
     def retrieve(self, query: str, k=3, use_hybrid=True):
         if not self._initialized:
             self.load_knowledge_base()
             
-        if use_hybrid and self.ensemble_retriever:
-            return self.ensemble_retriever.get_relevant_documents(query)[:k]
-        else:
+        if use_hybrid:
+            return self._hybrid_retrieve(query, k)
+        elif self._semantic_available and self.vector_store is not None:
             return self.vector_store.similarity_search(query, k=k)
+        else:
+            try:
+                return self.bm25_retriever.get_relevant_documents(query)[:k]
+            except Exception:
+                return self._all_documents[:k]
 
     def get_context(self, query: str, resume_text: str = "", job_description: str = "", 
                    max_context_tokens: int = None, use_hybrid: bool = True) -> str:
@@ -198,7 +231,6 @@ class ResumeRAG:
     def rebuild_index(self):
         self.vector_store = None
         self.bm25_retriever = None
-        self.ensemble_retriever = None
         self._all_documents = []
         self._initialized = False
         return self.load_knowledge_base(force_reload=True)

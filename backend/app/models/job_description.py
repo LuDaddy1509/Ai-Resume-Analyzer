@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Index
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
 
@@ -21,6 +22,9 @@ class JobDescription(Base):
     last_used_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationship
+    analyses = relationship("Analysis", back_populates="job_description", cascade="all, delete-orphan")
 
     __table_args__ = (
         Index('idx_jd_status_created', 'status', 'created_at'),

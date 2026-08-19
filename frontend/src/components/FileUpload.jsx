@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { resumeAPI, jobDescriptionAPI } from "../services/api";
 
@@ -21,20 +21,20 @@ export default function FileUpload({ onUploadSuccess, selectedJD }) {
     }
   }, [selectedJD]);
 
-  useEffect(() => {
-    if (useExistingJD && availableJDs.length === 0) {
-      loadJDs();
-    }
-  }, [useExistingJD]);
-
-  const loadJDs = async () => {
+  const loadJDs = useCallback(async () => {
     try {
       const jds = await jobDescriptionAPI.getAll({ status: "active" });
       setAvailableJDs(jds);
     } catch (error) {
       console.error("Error loading JDs:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (useExistingJD && availableJDs.length === 0) {
+      loadJDs();
+    }
+  }, [useExistingJD, availableJDs.length, loadJDs]);
 
   const handleJDSelect = async (jdId) => {
     setSelectedJDId(jdId);
@@ -98,23 +98,17 @@ export default function FileUpload({ onUploadSuccess, selectedJD }) {
         <h4 className="card-title mb-4">📄 Tải lên CV của bạn</h4>
 
         <div className="mb-4">
-          <label className="form-label fw-bold">1. Chọn file CV (PDF, DOCX, TXT)</label>
+          <label className="form-label fw-bold">1. Chọn file CV (PDF, DOCX, TXT, Ảnh PNG/JPG)</label>
           <input
             type="file"
-            accept=".pdf,.docx,.txt"
+            accept=".pdf,.docx,.txt,.png,.jpg,.jpeg"
             className="form-control form-control-lg"
             onChange={(e) => {
               const selectedFile = e.target.files[0];
               if (selectedFile) {
-                if (selectedFile.size > 5 * 1024 * 1024) {
-                  setError("Kích thước file vượt quá giới hạn 5MB. Vui lòng chọn file khác.");
-                  setFile(null);
-                  e.target.value = "";
-                  return;
-                }
                 const ext = selectedFile.name.split(".").pop().toLowerCase();
-                if (ext !== "pdf" && ext !== "docx" && ext !== "txt") {
-                  setError("Chỉ hỗ trợ file định dạng PDF, DOCX hoặc TXT.");
+                if (!["pdf", "docx", "txt", "png", "jpg", "jpeg"].includes(ext)) {
+                  setError("Chỉ hỗ trợ file định dạng PDF, DOCX, TXT, PNG hoặc JPG.");
                   setFile(null);
                   e.target.value = "";
                   return;
@@ -194,10 +188,10 @@ export default function FileUpload({ onUploadSuccess, selectedJD }) {
           />
         </div>
 
-        {error && <div className="alert alert-danger py-2 mb-4">{error}</div>}
+        {error && <div className="alert alert-danger py-2 mb-4" role="alert">{error}</div>}
 
         {loading && (
-          <div className="mb-4">
+          <div className="mb-4" aria-live="polite">
             <div className="d-flex justify-content-between mb-1 small fw-bold text-primary">
               <span>{progressText}</span>
               <span>{progress}%</span>

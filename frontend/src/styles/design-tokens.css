@@ -1,0 +1,236 @@
+/* ============================================
+   AI Resume Analyzer — Design Tokens
+   ============================================ */
+
+/* ---------- Light Theme (Default) ---------- */
+:root,
+[data-theme="light"] {
+  /* Primary palette */
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #e0e7ff;
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+
+  /* Secondary / Accent */
+  --color-accent: #0d9488;
+  --color-accent-hover: #0f766e;
+  --color-accent-light: #ccfbf1;
+
+  /* Neutral surfaces */
+  --color-bg: #f8fafc;
+  --color-bg-elevated: #ffffff;
+  --color-bg-subtle: #f1f5f9;
+  --color-bg-muted: #e2e8f0;
+  --color-bg-overlay: rgba(15, 23, 42, 0.4);
+
+  /* Borders */
+  --color-border: #e2e8f0;
+  --color-border-subtle: #f1f5f9;
+  --color-border-strong: #cbd5e1;
+
+  /* Text */
+  --color-text: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-text-inverse: #ffffff;
+  --color-text-on-primary: #ffffff;
+
+  /* Status colors */
+  --color-success: #16a34a;
+  --color-success-light: #dcfce7;
+  --color-success-text: #15803d;
+  --color-warning: #d97706;
+  --color-warning-light: #fef3c7;
+  --color-warning-text: #b45309;
+  --color-error: #dc2626;
+  --color-error-light: #fee2e2;
+  --color-error-text: #b91c1c;
+  --color-info: #2563eb;
+  --color-info-light: #dbeafe;
+  --color-info-text: #1d4ed8;
+
+  /* Score colors */
+  --color-score-strong: #16a34a;
+  --color-score-strong-bg: #dcfce7;
+  --color-score-good: #2563eb;
+  --color-score-good-bg: #dbeafe;
+  --color-score-moderate: #d97706;
+  --color-score-moderate-bg: #fef3c7;
+  --color-score-weak: #dc2626;
+  --color-score-weak-bg: #fee2e2;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 8px 10px rgba(0, 0, 0, 0.04);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Sidebar */
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e2e8f0;
+  --sidebar-text: #475569;
+  --sidebar-text-active: #4f46e5;
+  --sidebar-item-hover: #f1f5f9;
+  --sidebar-item-active-bg: #eef2ff;
+  --sidebar-width: 260px;
+
+  /* Nav */
+  --nav-bg: rgba(255, 255, 255, 0.8);
+  --nav-border: #e2e8f0;
+
+  /* Input */
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-border-focus: #4f46e5;
+  --input-placeholder: #94a3b8;
+
+  /* Scrollbar */
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-track: transparent;
+}
+
+/* ---------- Dark Theme ---------- */
+[data-theme="dark"] {
+  --color-primary: #818cf8;
+  --color-primary-hover: #a5b4fc;
+  --color-primary-light: #1e1b4b;
+  --color-primary-50: #1e1b4b;
+  --color-primary-100: #312e81;
+  --color-primary-600: #818cf8;
+  --color-primary-700: #a5b4fc;
+  --color-primary-800: #c7d2fe;
+
+  --color-accent: #2dd4bf;
+  --color-accent-hover: #5eead4;
+  --color-accent-light: #042f2e;
+
+  --color-bg: #0f172a;
+  --color-bg-elevated: #1e293b;
+  --color-bg-subtle: #1e293b;
+  --color-bg-muted: #334155;
+  --color-bg-overlay: rgba(0, 0, 0, 0.6);
+
+  --color-border: #334155;
+  --color-border-subtle: #1e293b;
+  --color-border-strong: #475569;
+
+  --color-text: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+  --color-text-inverse: #0f172a;
+  --color-text-on-primary: #0f172a;
+
+  --color-success: #4ade80;
+  --color-success-light: #052e16;
+  --color-success-text: #86efac;
+  --color-warning: #fbbf24;
+  --color-warning-light: #422006;
+  --color-warning-text: #fde68a;
+  --color-error: #f87171;
+  --color-error-light: #450a0a;
+  --color-error-text: #fca5a5;
+  --color-info: #60a5fa;
+  --color-info-light: #172554;
+  --color-info-text: #93c5fd;
+
+  --color-score-strong: #4ade80;
+  --color-score-strong-bg: #052e16;
+  --color-score-good: #60a5fa;
+  --color-score-good-bg: #172554;
+  --color-score-moderate: #fbbf24;
+  --color-score-moderate-bg: #422006;
+  --color-score-weak: #f87171;
+  --color-score-weak-bg: #450a0a;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5), 0 8px 10px rgba(0, 0, 0, 0.3);
+
+  --sidebar-bg: #1e293b;
+  --sidebar-border: #334155;
+  --sidebar-text: #94a3b8;
+  --sidebar-text-active: #818cf8;
+  --sidebar-item-hover: #334155;
+  --sidebar-item-active-bg: #1e1b4b;
+
+  --nav-bg: rgba(30, 41, 59, 0.85);
+  --nav-border: #334155;
+
+  --input-bg: #1e293b;
+  --input-border: #475569;
+  --input-border-focus: #818cf8;
+  --input-placeholder: #64748b;
+
+  --scrollbar-thumb: #475569;
+  --scrollbar-track: transparent;
+}
+
+/* ---------- Typography ---------- */
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.8125rem;   /* 13px */
+  --text-base: 0.9375rem; /* 15px */
+  --text-md: 1rem;        /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  /* Spacing */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* Z-index layers */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+
+  /* Container */
+  --container-max: 1200px;
+}

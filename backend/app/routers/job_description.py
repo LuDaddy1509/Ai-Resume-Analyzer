@@ -14,7 +14,7 @@ from app.schemas.job_description_schema import (
 router = APIRouter(prefix="/api/job-descriptions", tags=["job-descriptions"])
 
 
-@router.post("/", response_model=JobDescriptionResponse, status_code=201)
+@router.post("", response_model=JobDescriptionResponse, status_code=201)
 async def create_job_description(jd: JobDescriptionCreate, db: Session = Depends(get_db)):
     """Create a new job description."""
     created_jd = JobDescriptionService.create_jd(db, jd)
@@ -40,7 +40,7 @@ async def create_job_description(jd: JobDescriptionCreate, db: Session = Depends
     return response
 
 
-@router.get("/", response_model=List[JobDescriptionResponse])
+@router.get("", response_model=List[JobDescriptionResponse])
 async def get_job_descriptions(
     status: Optional[str] = Query(None),
     search: Optional[str] = Query(None),

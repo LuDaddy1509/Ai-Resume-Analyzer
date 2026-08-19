@@ -1,22 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jobDescriptionAPI } from '../services/api';
+import useDebounce from '../hooks/useDebounce';
+import PageLoader from '../components/PageLoader';
 
 export default function JobDescriptionsPage() {
   const [jds, setJds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [statusFilter, setStatusFilter] = useState('active');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadJDs();
-  }, [statusFilter, search]);
-
-  const loadJDs = async () => {
+  const loadJDs = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await jobDescriptionAPI.getAll({ status: statusFilter, search });
+      const data = await jobDescriptionAPI.getAll({ status: statusFilter, search: debouncedSearch });
       setJds(data);
     } catch (error) {
       console.error('Error loading JDs:', error);
@@ -24,13 +23,18 @@ export default function JobDescriptionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, debouncedSearch]);
+
+  useEffect(() => {
+    loadJDs();
+  }, [loadJDs]);
 
   const handleDuplicate = async (id) => {
     try {
       await jobDescriptionAPI.duplicate(id);
       loadJDs();
     } catch (error) {
+      console.error('Error duplicating JD:', error);
       alert('Không thể sao chép JD');
     }
   };
@@ -41,6 +45,7 @@ export default function JobDescriptionsPage() {
         await jobDescriptionAPI.archive(id);
         loadJDs();
       } catch (error) {
+        console.error('Error archiving JD:', error);
         alert('Không thể lưu trữ JD');
       }
     }
@@ -68,6 +73,7 @@ export default function JobDescriptionsPage() {
                   type="text"
                   className="form-control"
                   placeholder="Tìm kiếm theo title, company hoặc nội dung..."
+                  aria-label="Tìm kiếm Job Description"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -86,11 +92,7 @@ export default function JobDescriptionsPage() {
             </div>
 
             {loading ? (
-              <div className="text-center py-5">
-                <div className="spinner-border" role="status">
-                  <span className="visually-hidden">Đang tải...</span>
-                </div>
-              </div>
+              <PageLoader rows={4} />
             ) : jds.length === 0 ? (
               <div className="text-center text-muted py-5">
                 <p>Chưa có Job Description nào</p>

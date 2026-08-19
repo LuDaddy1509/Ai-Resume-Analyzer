@@ -132,6 +132,21 @@ def _extract_text(file_bytes: bytes, filename: str) -> str:
         except Exception as e:
             raise ValueError("Lỗi khi đọc file TXT. Đảm bảo file không bị hỏng.")
 
+    elif file_ext in ("png", "jpg", "jpeg"):
+        # OCR ảnh CV (ảnh chụp / scan ảnh trực tiếp)
+        if pytesseract is None:
+            raise ValueError("Không thể chạy OCR vì thiếu thư viện pytesseract. Vui lòng cài đặt tesseract.")
+        try:
+            from PIL import Image
+            with Image.open(io.BytesIO(file_bytes)) as img:
+                text = pytesseract.image_to_string(img, lang="eng+vie")
+            if not text.strip():
+                raise ValueError("Không đọc được chữ từ ảnh. Vui lòng kiểm tra lại chất lượng ảnh.")
+        except ValueError as ve:
+            raise ve
+        except Exception:
+            raise ValueError("Không thể đọc được file ảnh. Đảm bảo file là ảnh PNG hoặc JPG rõ nét.")
+
     else:
         raise ValueError("Định dạng file không được hỗ trợ.")
 

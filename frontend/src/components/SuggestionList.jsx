@@ -1,23 +1,29 @@
 import React from 'react';
+import { Lightbulb } from 'lucide-react';
 
-export default function SuggestionList({ suggestions }) {
+const SuggestionList = React.memo(function SuggestionList({ suggestions }) {
   if (!suggestions || suggestions.length === 0) return null;
 
   return (
-    <div className="card shadow mb-4">
-      <div className="card-header bg-warning text-dark fw-bold">
-        💡 Đề xuất tối ưu CV từ AI
+    <div className="panel">
+      <div className="panel__header panel__header--warning">
+        <Lightbulb size={18} />
+        <span>AI Suggestions</span>
       </div>
-      <div className="card-body">
-        <ul className="list-group list-group-flush">
+      <div className="panel__body">
+        <ul className="panel__list">
           {suggestions.map((suggestion, index) => (
-            <li key={index} className="list-group-item d-flex align-items-start px-0 border-0 mb-2">
-              <span className="me-2 fs-5">💡</span>
-              <span className="fs-6">{suggestion}</span>
+            <li key={index}>
+              <span className="panel__list-icon">
+                <Lightbulb size={16} color="var(--color-warning)" />
+              </span>
+              <span>{suggestion}</span>
             </li>
           ))}
         </ul>
       </div>
     </div>
   );
-}
+});
+
+export default SuggestionList;

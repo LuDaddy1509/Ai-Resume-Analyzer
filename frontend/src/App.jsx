@@ -1,31 +1,87 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Navbar from './components/Navbar';
-import HomePage from './pages/HomePage';
-import AnalyzePage from './pages/AnalyzePage';
-import ResultPage from './pages/ResultPage';
-import JobDescriptionsPage from './pages/JobDescriptionsPage';
-import JobDescriptionFormPage from './pages/JobDescriptionFormPage';
-import DashboardPage from './pages/DashboardPage';
+import ErrorBoundary from './components/ErrorBoundary';
+import PageLoader from './components/PageLoader';
+import ProtectedRoute from './components/ProtectedRoute';
+import AppShell from './components/AppShell';
 
-function App() {
+// Public pages
+const HomePage = lazy(() => import('./pages/HomePage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+
+// Protected pages
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ResumesPage = lazy(() => import('./pages/ResumesPage'));
+const ResumeImportPage = lazy(() => import('./pages/ResumeImportPage'));
+const ResumeDetailPage = lazy(() => import('./pages/ResumeDetailPage'));
+const AnalyzePage = lazy(() => import('./pages/AnalyzePage'));
+const ResultPage = lazy(() => import('./pages/ResultPage'));
+const AnalysisHistoryPage = lazy(() => import('./pages/AnalysisHistoryPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+
+// Utility pages
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+
+// Legacy pages (kept but not redesigned)
+const JobDescriptionsPage = lazy(() => import('./pages/JobDescriptionsPage'));
+const JobDescriptionFormPage = lazy(() => import('./pages/JobDescriptionFormPage'));
+
+function SuspenseWrapper({ children }) {
   return (
-    <>
-      <Navbar />
-      <div className="container mt-4">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/analyze" element={<AnalyzePage />} />
-          <Route path="/result" element={<ResultPage />} />
-          <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
-          <Route path="/job-descriptions/new" element={<JobDescriptionFormPage />} />
-          <Route path="/job-descriptions/:id" element={<JobDescriptionFormPage />} />
-          <Route path="/job-descriptions/:id/edit" element={<JobDescriptionFormPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-        </Routes>
-      </div>
-    </>
+    <Suspense
+      fallback={
+        <div style={{ padding: 'var(--space-8)', maxWidth: 'var(--container-max)', margin: '0 auto' }}>
+          <PageLoader />
+        </div>
+      }
+    >
+      {children}
+    </Suspense>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
+      <SuspenseWrapper>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Protected routes — wrapped in AppShell */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <AppShell />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/resumes" element={<ResumesPage />} />
+            <Route path="/resumes/import" element={<ResumeImportPage />} />
+            <Route path="/resumes/:resumeId" element={<ResumeDetailPage />} />
+            <Route path="/analyze" element={<AnalyzePage />} />
+            <Route path="/result" element={<ResultPage />} />
+            <Route path="/analysis-history" element={<AnalysisHistoryPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+
+            {/* Legacy routes */}
+            <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
+            <Route path="/job-descriptions/new" element={<JobDescriptionFormPage />} />
+            <Route path="/job-descriptions/:id" element={<JobDescriptionFormPage />} />
+            <Route path="/job-descriptions/:id/edit" element={<JobDescriptionFormPage />} />
+          </Route>
+
+          {/* 404 */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </SuspenseWrapper>
+    </ErrorBoundary>
+  );
+}

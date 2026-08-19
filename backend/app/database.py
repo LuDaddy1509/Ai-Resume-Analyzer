@@ -8,9 +8,16 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./resume_history.db")
 
+# Configure connect_args based on database type
+if DATABASE_URL.startswith("postgresql"):
+    connect_args = {}
+else:
+    connect_args = {"check_same_thread": False}
+
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False}
+    connect_args=connect_args,
+    pool_pre_ping=True  # Enable connection health checks
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

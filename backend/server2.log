@@ -1,0 +1,13 @@
+INFO:     Will watch for changes in these directories: ['C:\\Users\\lhnhan\\PycharmProjects\\Ai-Resume-Analyzer\\backend']
+INFO:     Uvicorn running on http://0.0.0.0:8002 (Press CTRL+C to quit)
+INFO:     Started reloader process [20328] using WatchFiles
+INFO:     Started server process [20412]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57762 - "POST /api/auth/register HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'test_auth.py'. Reloading...
+ INFO:     127.0.0.1:64409 - "POST /api/auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64411 - "POST /api/auth/refresh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64420 - "POST /api/auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64422 - "GET /api/auth/me HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49835 - "POST /api/auth/register HTTP/1.1" 200 OK

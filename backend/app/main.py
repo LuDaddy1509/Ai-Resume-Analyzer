@@ -3,9 +3,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.routers.resume import router as resume_router
+from app.routers.auth import router as auth_router
+from app.routers.job_description import router as job_description_router
+from app.routers.dashboard import router as dashboard_router
+from app.routers.skill_gaps import router as skill_gaps_router
+from app.routers.resume_optimization import router as resume_optimization_router
 import os
 
 app = FastAPI(title="AI Resume Analyzer API")
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "service": "ai-resume-analyzer-api"}
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,6 +28,11 @@ app.add_middleware(
 
 # API routes
 app.include_router(resume_router)
+app.include_router(auth_router)
+app.include_router(job_description_router)
+app.include_router(dashboard_router)
+app.include_router(skill_gaps_router)
+app.include_router(resume_optimization_router)
 
 # Serve React build
 frontend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend", "dist")

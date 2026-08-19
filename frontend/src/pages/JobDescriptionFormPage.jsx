@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { jobDescriptionAPI } from '../services/api';
 
@@ -21,13 +21,7 @@ export default function JobDescriptionFormPage() {
   const [loading, setLoading] = useState(false);
   const [extractedKeywords, setExtractedKeywords] = useState([]);
 
-  useEffect(() => {
-    if (isEdit) {
-      loadJD();
-    }
-  }, [id]);
-
-  const loadJD = async () => {
+  const loadJD = useCallback(async () => {
     try {
       const jd = await jobDescriptionAPI.getById(id);
       setFormData({
@@ -42,10 +36,17 @@ export default function JobDescriptionFormPage() {
       });
       setExtractedKeywords(jd.extracted_keywords || []);
     } catch (error) {
+      console.error('Error loading JD:', error);
       alert('Không thể tải Job Description');
       navigate('/job-descriptions');
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    if (isEdit) {
+      loadJD();
+    }
+  }, [isEdit, loadJD]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,6 +60,7 @@ export default function JobDescriptionFormPage() {
       }
       navigate('/job-descriptions');
     } catch (error) {
+      console.error('Error saving JD:', error);
       alert('Không thể lưu Job Description');
     } finally {
       setLoading(false);
