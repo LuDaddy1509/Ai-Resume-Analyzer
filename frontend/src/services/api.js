@@ -138,4 +138,47 @@ export const healthAPI = {
     api.get('/health').then((r) => r.data),
 };
 
+// ---------- Resume Optimization API ----------
+export const optimizationAPI = {
+  optimize: (resumeId, data = {}) =>
+    api
+      .post('/api/resume-optimization/optimize', { resume_id: resumeId, ...data })
+      .then((r) => r.data),
+
+  getByResume: (resumeId) =>
+    api.get(`/api/resume-optimization/resume/${resumeId}`).then((r) => r.data),
+
+  getById: (id) =>
+    api.get(`/api/resume-optimization/${id}`).then((r) => r.data),
+
+  compare: (id) =>
+    api.get(`/api/resume-optimization/${id}/compare`).then((r) => r.data),
+
+  exportPDF: (id) =>
+    api.post(`/api/resume-optimization/${id}/export-pdf`, {}, { responseType: 'blob' }),
+};
+
+// ---------- Skill Gaps API ----------
+export const skillGapAPI = {
+  analyze: (analysisId, resumeId) =>
+    api
+      .post('/api/skill-gaps/analyze', { analysis_id: analysisId, resume_id: resumeId })
+      .then((r) => r.data),
+
+  getByAnalysis: (analysisId) =>
+    api.get(`/api/skill-gaps/analysis/${analysisId}`).then((r) => r.data),
+
+  getLearningPath: (skillGapId) =>
+    api.get(`/api/skill-gaps/${skillGapId}/learning-path`).then((r) => r.data),
+
+  createProgress: (userId, data) =>
+    api.post(`/api/skill-gaps/progress?user_id=${userId}`, data).then((r) => r.data),
+
+  getProgress: (userId) =>
+    api.get(`/api/skill-gaps/progress/${userId}`).then((r) => r.data),
+
+  updateProgress: (progressId, data) =>
+    api.patch(`/api/skill-gaps/progress/${progressId}`, data).then((r) => r.data),
+};
+
 export default api;

@@ -9,9 +9,9 @@ export default function ResumeDetailPage() {
   return (
     <div>
       <div className="page-header">
-        <button className="btn btn-ghost btn-sm mb-4" onClick={() => navigate('/resumes')}>
+        <button className="btn btn-ghost btn-sm mb-4" onClick={() => navigate('/analysis-history')}>
           <ArrowLeft size={16} />
-          Back to CVs
+          Back to Analyses
         </button>
         <h1 className="page-header__title">CV Details</h1>
         <p className="page-header__subtitle">Resume #{resumeId}</p>

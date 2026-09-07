@@ -12,12 +12,13 @@ const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 
 // Protected pages
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
-const ResumesPage = lazy(() => import('./pages/ResumesPage'));
 const ResumeImportPage = lazy(() => import('./pages/ResumeImportPage'));
 const ResumeDetailPage = lazy(() => import('./pages/ResumeDetailPage'));
 const AnalyzePage = lazy(() => import('./pages/AnalyzePage'));
 const ResultPage = lazy(() => import('./pages/ResultPage'));
 const AnalysisHistoryPage = lazy(() => import('./pages/AnalysisHistoryPage'));
+const ResumeOptimizationPage = lazy(() => import('./pages/ResumeOptimizationPage'));
+const SkillGapsPage = lazy(() => import('./pages/SkillGapsPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 
 // Utility pages
@@ -63,12 +64,13 @@ export default function App() {
             }
           >
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/resumes" element={<ResumesPage />} />
             <Route path="/resumes/import" element={<ResumeImportPage />} />
             <Route path="/resumes/:resumeId" element={<ResumeDetailPage />} />
             <Route path="/analyze" element={<AnalyzePage />} />
             <Route path="/result" element={<ResultPage />} />
             <Route path="/analysis-history" element={<AnalysisHistoryPage />} />
+            <Route path="/resume-optimization" element={<ResumeOptimizationPage />} />
+            <Route path="/skill-gaps" element={<SkillGapsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
 
             {/* Legacy routes */}

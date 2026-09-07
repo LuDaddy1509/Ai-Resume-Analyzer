@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, FileText, Save, Search, ArrowRight } from 'lucide-react';
+import { Upload, FileText, Search, ArrowRight } from 'lucide-react';
 import FileDropZone from '../components/FileDropZone';
 import ProcessingStepper from '../components/ProcessingStepper';
 import { resumeAPI } from '../services/api';

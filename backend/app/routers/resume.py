@@ -154,7 +154,10 @@ async def parse_resume(
         resume_data = parse_resume_file(content, file.filename)
 
         # Tính toán match score động (sử dụng AI nếu cấu hình API Key)
-        if os.getenv('GEMINI_API_KEY') and job_description:
+        gemini_key = os.getenv('GEMINI_API_KEY', '').strip()
+        use_llm = (gemini_key and gemini_key != 'your_key_here'
+                   and 'placeholder' not in gemini_key.lower() and job_description)
+        if use_llm:
             try:
                 from app.services.llm_analyzer import LLMAnalyzer
                 llm_analyzer = LLMAnalyzer()
@@ -260,6 +263,7 @@ async def get_history(db: Session = Depends(get_db)):
             'match_score': h.match_score,
             'resume_id': h.resume_id,
             'analysis_id': h.analysis_id,
+            'job_description_id': h.job_description_id,
             'created_at': h.created_at
         }
         for h in histories

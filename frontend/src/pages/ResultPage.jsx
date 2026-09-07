@@ -8,10 +8,8 @@ import {
   History,
   Zap,
   CheckCircle,
-  XCircle,
   User,
   Mail,
-  Phone,
   Briefcase,
 } from 'lucide-react';
 import ScoreCard from '../components/ScoreCard';

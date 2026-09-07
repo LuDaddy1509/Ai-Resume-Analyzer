@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Search, Upload, Calendar, Trash2 } from 'lucide-react';
+import { FileText, Search, Upload, Calendar } from 'lucide-react';
 import { resumeAPI } from '../services/api';
 import PageLoader from '../components/PageLoader';
 import EmptyState from '../components/EmptyState';

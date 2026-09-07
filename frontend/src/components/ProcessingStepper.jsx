@@ -1,4 +1,4 @@
-import { Check, X, Loader } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 
 export default function ProcessingStepper({ steps, currentStep, error }) {
   return (

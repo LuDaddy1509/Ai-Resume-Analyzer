@@ -9,17 +9,19 @@ import {
   Settings,
   LogOut,
   Menu,
-  X,
+  Sparkles,
+  Target,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ThemeSwitcher from './ThemeSwitcher';
 
 const navItems = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { label: 'My CVs', path: '/resumes', icon: FileText },
   { label: 'Import CV', path: '/resumes/import', icon: Upload },
   { label: 'Analyze CV', path: '/analyze', icon: Search },
   { label: 'Analysis History', path: '/analysis-history', icon: History },
+  { label: 'Optimize CV', path: '/resume-optimization', icon: Sparkles },
+  { label: 'Skill Gaps', path: '/skill-gaps', icon: Target },
 ];
 
 const secondaryItems = [

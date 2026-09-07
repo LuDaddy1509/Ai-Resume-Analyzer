@@ -90,19 +90,12 @@ export default function DashboardPage() {
           <div className="font-semibold">Analyze CV</div>
           <div className="text-sm text-muted mt-2">Run AI analysis</div>
         </button>
-        <button className="stat-card card-clickable" onClick={() => navigate('/resumes')} style={{ border: 'none', cursor: 'pointer', textAlign: 'left' }}>
-          <div className="stat-card__icon" style={{ background: 'var(--color-info-light)', color: 'var(--color-info)' }}>
-            <FileText size={24} />
-          </div>
-          <div className="font-semibold">My CVs</div>
-          <div className="text-sm text-muted mt-2">View saved CVs</div>
-        </button>
         <button className="stat-card card-clickable" onClick={() => navigate('/analysis-history')} style={{ border: 'none', cursor: 'pointer', textAlign: 'left' }}>
           <div className="stat-card__icon" style={{ background: 'var(--color-warning-light)', color: 'var(--color-warning)' }}>
             <History size={24} />
           </div>
-          <div className="font-semibold">History</div>
-          <div className="text-sm text-muted mt-2">Analysis history</div>
+          <div className="font-semibold">Analysis History</div>
+          <div className="text-sm text-muted mt-2">View analysis history</div>
         </button>
       </div>
 
