@@ -5,9 +5,11 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from app.rag.vector_store import ResumeRAG
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 
 class AnalysisResult(BaseModel):
@@ -28,11 +30,11 @@ class LLMAnalyzer:
         else:
             self.llm = ChatGoogleGenerativeAI(
                 model="gemini-1.5-flash",
-                temperature=0.2,  # Giảm xuống để chính xác hơn
+                temperature=0.2,
                 api_key=api_key
             )
 
-        self.rag = ResumeRAG()  # Khởi tạo RAG
+        self.rag = ResumeRAG()
         self.parser = PydanticOutputParser(pydantic_object=AnalysisResult)
 
         self.prompt = PromptTemplate(
@@ -64,7 +66,6 @@ class LLMAnalyzer:
 {format_instructions}
 
 **Chỉ trả về JSON, không thêm bất kỳ ký tự hoặc giải thích nào.**""",
-
             input_variables=["context", "resume_text", "job_description_section"],
             partial_variables={"format_instructions": self.parser.get_format_instructions()}
         )
@@ -73,45 +74,64 @@ class LLMAnalyzer:
         if not self.llm:
             return self._fallback_analyze(resume_text, job_description)
 
-        # === RAG RETRIEVAL ===
+        # Build retrieval query from resume + optional JD
         query = f"Phân tích CV với kỹ năng: {resume_text[:800]}"
         if job_description:
             query += f" và JD: {job_description[:500]}"
 
-        docs = self.rag.retrieve(query, k=4)
-        context = "\n\n".join([doc.page_content for doc in docs])
+        # Use get_context() for hybrid retrieval + token budget management
+        try:
+            context = self.rag.get_context(
+                query=query,
+                resume_text=resume_text or "",
+                job_description=job_description or "",
+                max_context_tokens=3000,
+                use_hybrid=True,
+            )
+        except Exception as e:
+            logger.warning("RAG get_context failed, fallback to empty context: %s", e)
+            context = ""
 
-        # === JD Section ===
-        jd_section = f"**Job Description:**\n{job_description}\n" if job_description else "Không có Job Description."
+        jd_section = (
+            f"**Job Description:**\n{job_description}\n"
+            if job_description
+            else "Không có Job Description."
+        )
 
         chain = self.prompt | self.llm | self.parser
 
         try:
             result = await chain.ainvoke({
                 "context": context,
-                "resume_text": resume_text[:18000],  # Giới hạn token
-                "job_description_section": jd_section
+                "resume_text": resume_text[:18000],
+                "job_description_section": jd_section,
             })
             return result
         except Exception as e:
-            print(f"LLM Error: {e}")
+            logger.error("LLM Error: %s", e)
             return self._fallback_analyze(resume_text, job_description)
 
     def _fallback_analyze(self, resume_text: str, job_description: str):
-        # Fallback rule-based
         try:
             from app.services.resume_analyzer import ResumeAnalyzer
             analyzer = ResumeAnalyzer()
-            resume_dict = {"skills": [], "experiences": [], "full_name": "", "email": ""}  # Giả lập
+            resume_dict = {
+                "skills": [],
+                "experiences": [],
+                "full_name": "",
+                "email": "",
+            }
             return analyzer.analyze(resume_dict, job_description)
-        except:
-            # Fallback cuối cùng
+        except Exception:
             return AnalysisResult(
                 overall_score=65,
                 ats_score=70,
                 strengths=["Có một số kỹ năng cơ bản"],
                 weaknesses=["Cần cải thiện cấu trúc CV"],
                 skill_gaps=[],
-                suggestions=["Thêm quantifiable achievements", "Tối ưu từ khóa JD"],
-                match_score=60
+                suggestions=[
+                    "Thêm quantifiable achievements",
+                    "Tối ưu từ khóa JD",
+                ],
+                match_score=60,
             )
